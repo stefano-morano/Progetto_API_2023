@@ -33,24 +33,46 @@ station in_station_position(station tree, int distance){
         return in_station_position(tree->sx, distance);
     else return in_station_position(tree->dx, distance);
 }
-/**
- * Function that adds a station to the railroad
- * Return "aggiunta" if the station is added,
- * return "non aggiunta" if the station already exists
- */
+
+int binary_search_right(station station_to_shift, int num_car){
+    int left = 0;
+    int right = station_to_shift->size - 1;
+
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        if (station_to_shift->car[mid] == num_car)
+            return mid;
+        else {
+            if (station_to_shift->car[mid] < num_car)
+                right = mid - 1;
+            else left = mid + 1;
+        }
+    }
+    return left;
+}
+
+void shift_right(station station_to_shift, int position, int to_insert){
+    for (int x=station_to_shift->size; x>position; x--)
+        station_to_shift->car[x]=station_to_shift->car[x-1];
+    station_to_shift->car[position]=to_insert;
+    station_to_shift->size++;
+}
+
 void aggiungi_stazione() {
     int distance_input;
-    scanf("%d", &distance_input);                                               //read the distance of the new station
+    if (scanf("%d", &distance_input) <= 0)                                              //read the distance of the new station
+        return;
     if (in_station_position(station_tree, distance_input)!=NULL) {
         printf("non aggiunta\n");
         return;
     } else {
         int num_input;
         station radix = station_tree, scorr;
-        scanf("%d", &num_input);                                                   //read the initial number of cars in the station
+        if (scanf("%d", &num_input) <= 0)                                              //read the distance of the new station
+            return;                                                //read the initial number of cars in the station
         station new_station = malloc(sizeof(Node));
         new_station->distance = distance_input;
-        new_station->size = num_input;
+        new_station->size = 0;
         new_station->capacity = num_input;
         new_station->dx = NULL;
         new_station->sx = NULL;
@@ -70,11 +92,14 @@ void aggiungi_stazione() {
             else scorr->dx = new_station;
             station_tree = radix;
         }
-        if (new_station->size != 0) {
+        if (new_station->capacity != 0) {
             new_station->car = malloc(sizeof(int) * num_input);
-            for (int x = 0; x < new_station->size; x++) {
-                scanf("%d", &num_input);
-                new_station->car[x] = num_input;                      //error: va in segmentation fault
+            int position;
+            for (int x = 0; x < new_station->capacity; x++) {
+                if (scanf("%d", &num_input) <= 0)                                              //read the distance of the new station
+                    return;
+                position = binary_search_right(new_station, num_input);
+                shift_right(new_station, position, num_input);
             }
         }
         printf("aggiunta\n");
@@ -117,73 +142,105 @@ void shift_left(station station_to_shift, int position){
     station_to_shift->size--;
 }
 
-int binary_search_right(station station_to_shift, int num_car){
-        int left = 0;
-        int right = station_to_shift->size - 1;
-
-        while (left <= right) {
-            int mid = left + (right - left) / 2;
-            if (station_to_shift->car[mid] == num_car)
-                return mid;
-            else {
-                if (station_to_shift->car[mid] < num_car)
-                    right = mid - 1;
-                else left = mid + 1;
+void delete_node(station node){
+    if (node->capacity>0)
+        free(node->car);
+    if (node->sx==NULL && node->dx==NULL){          //if the node is a leaf
+        if (node->father->sx==node)
+            node->father->sx=NULL;
+        else node->father->dx=NULL;
+    } else {
+        if (node->sx==NULL){
+            if (node->father->sx==node)
+                node->father->sx=node->dx;
+            else node->father->dx=node->dx;
+        } else {
+            if (node->dx==NULL){
+                if (node->father->sx==node)
+                    node->father->sx=node->sx;
+                else node->father->dx=node->sx;
+            } else {
+                station to_shift = node->dx;
+                while (to_shift->sx!=NULL)
+                    to_shift=to_shift->sx;
+                if (to_shift->father->sx==to_shift)
+                    to_shift->father->sx=NULL;
+                else to_shift->father->dx=NULL;
+                to_shift->father=node->father;
+                to_shift->sx=node->sx;
+                to_shift->dx=node->dx;
+                if (node->father->sx==node)
+                    node->father->sx=to_shift;
+                else node->father->dx=to_shift;
             }
         }
-        return left;
+    }
+    free(node);
 }
 
-void shift_right(){
-
-}
-
-
-
-/**
- * Function that remove a station in the railroad chosen in the line after the command "demolisci-stazione"
- */
 void demolisci_stazione() {
-    //TODO
+    int distance_input;
+    if (scanf("%d", &distance_input) <= 0)                                              //read the distance of the new station
+        return;
+    station to_consider = in_station_position(station_tree, distance_input);
+    if (to_consider==NULL){
+        printf("non demolita\n");
+    } else {
+        delete_node(to_consider);
+        printf("demolita\n");
+    }
 }
 
-/**
- * Function that add a car in a station chosen in the line after the command "aggiungi-auto"
- */
-void aggiungi_auto(){
+void aggiungi_auto() {
     int distance_input;
-    scanf("%d", &distance_input);
+    if (scanf("%d", &distance_input) <= 0)                                              //read the distance of the new station
+        return;
     station to_consider = in_station_position(station_tree, distance_input);
-    if (to_consider==NULL)
-        printf("non aggiunta\n"); // return
+    if (to_consider == NULL)
+        printf("non aggiunta\n");
     else {
-        //control if size==0
-        if (to_consider->size==to_consider->capacity) {
-            to_consider->capacity *= 2;
-            (to_consider->car) = (int*) realloc (to_consider->car, sizeof(int) * to_consider->capacity);
+        if (to_consider->capacity == 0) {
+            to_consider->car = malloc(sizeof(int));
+            to_consider->capacity = 1;
+            to_consider->size = 1;
+            if (scanf("%d", &to_consider->car[0]) <= 0)                                              //read the distance of the new station
+                return;
+            printf("aggiunta\n");
+        } else {
+            if (to_consider->size == to_consider->capacity) {
+                to_consider->capacity *= 2;
+                (to_consider->car) = (int *) realloc (to_consider->car, sizeof(int) * to_consider->capacity);
+            }
+            int position = binary_search_right(to_consider, distance_input), num_input;
+            if (scanf("%d", &num_input) <= 0)                                              //read the distance of the new station
+                return;
+            shift_right(to_consider, position, num_input);
+            printf("aggiunta\n");
         }
-        //binary_search
-        //right shift
-        to_consider->size++;
-        printf("aggiunta");
     }
 }
 
 void rottama_auto(){
     int distance_input;
-    scanf("%d", &distance_input);
+    if (scanf("%d", &distance_input) <= 0)                                              //read the distance of the new station
+        return;
     station to_consider = in_station_position(station_tree, distance_input);
     if (to_consider==NULL) {
         printf("non rottamata\n");
     } else {
-        int num_input;
-        scanf("%d", &num_input);
-        int position=binary_search_left(to_consider, num_input);
-        if (position == -1) {
+        if (to_consider->size == 0 || to_consider->capacity == 0)
             printf("non rottamata\n");
-        } else {
-            shift_left(to_consider, position);
-            printf("rottamata\n");
+        else {
+            int num_input;
+            if (scanf("%d", &num_input) <= 0)                                              //read the distance of the new station
+                return;
+            int position = binary_search_left(to_consider, num_input);
+            if (position == -1) {
+                printf("non rottamata\n");
+            } else {
+                shift_left(to_consider, position);
+                printf("rottamata\n");
+            }
         }
     }
 }
@@ -193,11 +250,12 @@ void pianifica_percorso(){
 }
 
 int main() {
+    //FILE *file=freopen("output.txt", "w", stdout);
     while (scanf("%s", input)!=EOF){
        if (strcmp(input, "aggiungi-stazione") == 0)
            aggiungi_stazione();
-       else if (strcmp(input, "distruggi-stazione") == 0)
-           printf("distruggi stazione\n");
+       else if (strcmp(input, "demolisci-stazione") == 0)
+              demolisci_stazione();
        else if (strcmp(input, "aggiungi-auto") == 0)
            aggiungi_auto();
        else if (strcmp(input, "rottama-auto") == 0)
@@ -210,4 +268,5 @@ int main() {
            else print_stations(station_tree);
        }
    }
+   //fclose(file);
 }
