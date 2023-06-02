@@ -15,6 +15,7 @@ typedef struct Node {
     int distance;
     int size;
     int capacity;
+    int last_visited;
     struct Node *father;
     struct Node *dx;
     struct Node *sx;
@@ -74,6 +75,7 @@ void aggiungi_stazione() {
         new_station->distance = distance_input;
         new_station->size = 0;
         new_station->capacity = num_input;
+        new_station->last_visited = 0;
         new_station->dx = NULL;
         new_station->sx = NULL;
         new_station->father = NULL;
@@ -245,7 +247,65 @@ void rottama_auto(){
     }
 }
 
+station first_station(station to_search){
+    while (to_search->sx!=NULL)
+        to_search=to_search->sx;
+    return to_search;
+}
+
+station next_station(station to_next){
+    if (to_next->dx!=NULL)
+        return first_station(to_next->dx);
+    station temp=to_next->father;
+    while (temp!=NULL && to_next == temp->dx){
+        to_next=temp;
+        temp=temp->father;
+    }
+    return temp;
+}
+
+void afterward(station station_1, station station_2){
+    station temp_station = next_station(station_1), first_station=station_1;
+    while (first_station->distance != station_2->distance){
+        while ((first_station->car[0] + first_station->distance) >= temp_station->distance) {
+            if (temp_station->last_visited == 0)
+                temp_station->last_visited = first_station->distance;
+            temp_station= next_station(temp_station);
+        }
+        first_station= next_station(first_station);
+    }
+    if (station_2->distance != 0){
+        temp_station=station_2;
+        printf("%d ", station_2->last_visited);
+        do {
+            temp_station = in_station_position(station_tree, temp_station->last_visited);
+            printf("%d ", temp_station->last_visited);
+        } while (temp_station->distance != station_1 -> distance);
+        printf("\n");
+    } else printf("nessun percorso\n");
+}
+
+void reset_distance(station tree_to_reset){
+    if (tree_to_reset!=NULL) {
+        reset_distance(tree_to_reset->sx);
+        tree_to_reset->last_visited = 0;
+        reset_distance(tree_to_reset->dx);
+    }
+}
+
+
 void pianifica_percorso(){
+int distance_1, distance_2;
+    if (scanf("%d", &distance_1) <= 0)                                              //read the distance of the new station
+        return;
+    if (scanf("%d", &distance_2) <= 0)                                              //read the distance of the new station
+        return;
+    if (distance_1 < distance_2) {
+        afterward(in_station_position(station_tree, distance_1), in_station_position(station_tree, distance_2));
+        return;
+    } else if (distance_1 > distance_2)
+        return; /*backwards*/
+    printf("%d\n", distance_1);
 
 }
 
@@ -261,7 +321,7 @@ int main() {
        else if (strcmp(input, "rottama-auto") == 0)
            rottama_auto();
        else if (strcmp(input, "pianifica-percorso") == 0)
-           printf("pianifica percorso\n");
+           pianifica_percorso();
        else if (strcmp(input, "stampa") == 0) {
            if (station_tree==NULL)
                printf("\nNessuna stazione presente\n");
