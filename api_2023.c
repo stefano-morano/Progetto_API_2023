@@ -12,7 +12,7 @@
 
 
 typedef struct Node {
-    int distance;
+    unsigned int distance;
     int size;
     int capacity;
     int last_visited;
@@ -231,6 +231,11 @@ void aggiungi_auto() {
                 return;
             printf("aggiunta\n");
         } else {
+            if (to_consider->size==0){
+                if (scanf("%d", &to_consider->car[0]) <= 0)                                              //read the distance of the new station
+                    return;
+                to_consider->size=1;
+            }
             if (to_consider->size == to_consider->capacity) {
                 to_consider->capacity *= 2;
                 (to_consider->car) = (int *) realloc (to_consider->car, sizeof(int) * to_consider->capacity);
@@ -252,7 +257,7 @@ void rottama_auto(){
     if (to_consider==NULL) {
         printf("non rottamata\n");
     } else {
-        if (to_consider->size == 0 || to_consider->capacity == 0)
+        if (to_consider->capacity == 0 || to_consider->size == 0)
             printf("non rottamata\n");
         else {
             int num_input;
@@ -262,6 +267,10 @@ void rottama_auto(){
             if (position == -1) {
                 printf("non rottamata\n");
             } else {
+                if (to_consider->size==1) {
+                    to_consider->size = 0;
+                    return;
+                }
                 shift_left(to_consider, position);
                 printf("rottamata\n");
             }
@@ -306,7 +315,7 @@ station next_station(station to_next){
 void afterward(station station_1, station station_2){
     station temp_station = next_station(station_1), locked_station=station_1;
     do {
-        while (temp_station!=NULL && locked_station->capacity!=0 && (locked_station->car[0] + locked_station->distance) >= temp_station->distance) {
+        while (temp_station!=NULL && locked_station->size!=0 && (locked_station->car[0] + locked_station->distance) >= temp_station->distance) {
             if (temp_station->last_visited == 0)
                 temp_station->last_visited = locked_station->distance;
             temp_station = next_station(temp_station);
@@ -326,16 +335,18 @@ void afterward(station station_1, station station_2){
             }
             temp_station = in_station_position(station_tree, temp_station->last_visited);
         } while (temp_station->distance != station_1 -> distance);
-        for (int x=array_size-1; x>=0; x--)
-            printf("%d ", array_distance[x]);
-        printf("\n");
+        for (int x=array_size-1; x>=0; x--) {
+            if (x == 0)
+                printf("%d\n", array_distance[x]);
+            else printf("%d ", array_distance[x]);
+        }
     } else printf("nessun percorso\n");
 }
 
 void backward(station station_1, station station_2){
     station temp_station = previous_station(station_1), locked_station=station_1;
     do {
-        while (temp_station!=NULL && locked_station->capacity!=0 && (locked_station->distance - locked_station->car[0]) <= temp_station->distance) {
+        while (temp_station!=NULL && locked_station->size!=0 && (locked_station->distance - locked_station->car[0]) <= temp_station->distance) {
             if (temp_station->last_visited == 0)
                 temp_station->last_visited = locked_station->distance;
             temp_station = previous_station(temp_station);
@@ -355,9 +366,11 @@ void backward(station station_1, station station_2){
             }
             temp_station = in_station_position(station_tree, temp_station->last_visited);
         } while (temp_station->distance != station_1 -> distance);
-        for (int x=array_size-1; x>=0; x--)
-            printf("%d ", array_distance[x]);
-        printf("\n");
+        for (int x=array_size-1; x>=0; x--) {
+            if (x == 0)
+                printf("%d\n", array_distance[x]);
+            else printf("%d ", array_distance[x]);
+        }
     } else printf("nessun percorso\n");
 }
 
