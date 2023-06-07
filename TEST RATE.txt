@@ -1,13 +1,13 @@
 Test 1	DONE
 Test 2	DONE
-Test 3  WRONG OUTPUT
+Test 3  DONE
 Test 4  DONE
-Test 5  WRONG OUTPUT
-Test 6  WRONG OUTPUT
+Test 5  DONE DATA
+Test 6  DONE
 Test 7  WRONG OUTPUT
-Test 8  SEGMENTATION FAULT
-Test 9
-Test 10
+Test 8  DONE DATA
+Test 9  WRONG OUTPUT
+Test 10 DONE
 Test 11
 Test 12
 Test 13
@@ -34,7 +34,7 @@ Test 33
 Test 34
 Test 35
 Test 36
-Test 37
+Test 37 DONE DATA
 Test 38
 Test 39
 Test 40
@@ -47,7 +47,7 @@ Test 46
 Test 47
 Test 48
 Test 49
-Test 50
+Test 50     DONE DATA
 Test 51
 Test 52
 Test 53
@@ -58,7 +58,7 @@ Test 57
 Test 58
 Test 59
 Test 60
-Test 61
+Test 61     DONE DATA
 Test 62
 Test 63
 Test 64
