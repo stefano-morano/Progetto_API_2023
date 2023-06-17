@@ -170,7 +170,7 @@ void print_stations(station tree_to_print){
         if (tree_to_print->size!=0)
             for (int x=0; x<tree_to_print->size; x++)
                 printf("%d ", tree_to_print->car[x]);
-        printf("\n\n");
+        printf("\nUltima stazione visitata: %d\n\n", tree_to_print->last_visited);
         print_stations(tree_to_print->dx);
     }
 }
@@ -184,7 +184,7 @@ void print_station(int distance){
         if (tree_to_print->size!=0)
             for (int x=0; x<tree_to_print->size; x++)
                 printf("%d ", tree_to_print->car[x]);
-        printf("\n\n");
+        printf("\nUltima stazione visitata: %d\n\n", tree_to_print->last_visited);
         print_stations(tree_to_print->dx);
     }
 }
@@ -267,9 +267,9 @@ void delete_node(station node){                                         //da riv
 
 void demolisci_stazione() {
     int distance_input;
-    if (scanf("%d", &distance_input) <= 0)                                              //read the distance of the new station
+    if (scanf("%d", &distance_input) <= 0)                                                      //read the distance of the new station
         return;
-    station to_consider = in_station_position(station_tree, distance_input);
+    station to_consider = in_station_position(station_tree, distance_input);        //search the station in the station_tree
     if (to_consider==NULL){
         printf("non demolita\n");
     } else {
@@ -346,7 +346,7 @@ void rottama_auto(){
 
 
 void afterward(station station_1, station station_2){
-   /* station temp_station = next_station(station_1), locked_station=station_1;
+   station temp_station = next_station(station_1), locked_station=station_1;
     do {
         while (temp_station!=NULL && locked_station->size!=0 && (locked_station->car[0] + locked_station->distance) >= temp_station->distance) {
             if (temp_station->last_visited == 0)
@@ -373,21 +373,25 @@ void afterward(station station_1, station station_2){
             printf(" %d", array_distance[x]);
         }
         printf("\n");
-    } else printf("nessun percorso\n");*/
-    printf("\n");
+    } else printf("nessun percorso\n");
+   // printf("\n");
 }
 
 void backward(station station_2, station station_1){                                                                                                        //non va
-   /*station temp_station = next_station(station_1), locked_station=station_1;
+   station temp_station = next_station(station_1), locked_station=station_1, bypass=NULL;
     do {
         while (temp_station!=NULL) {
-            if (temp_station->last_visited==0 && temp_station->size!=0 && ((temp_station->distance - temp_station->car[0]) <= locked_station->distance))
+            if (temp_station->last_visited==0 && temp_station->size!=0 && ((temp_station->distance - temp_station->car[0]) <= locked_station->distance)) {
                 temp_station->last_visited = locked_station->distance;
+                bypass = temp_station;
+            }
             temp_station = next_station(temp_station);
         }
-
+        if (bypass!=NULL)
+            temp_station = next_station(locked_station);
+        else temp_station = next_station(bypass);
         locked_station = next_station(locked_station);
-        temp_station = next_station(locked_station);
+
     } while (locked_station->distance != station_2->distance);
     if (station_2->last_visited != 0){
         temp_station=station_2;
@@ -406,7 +410,7 @@ void backward(station station_2, station station_1){                            
             printf(" %d", array_distance[x]);
         }
         printf("\n");
-    } else printf("nessun percorso\n");*/
+    } else printf("nessun percorso\n");
    printf("\n");
 }
 
