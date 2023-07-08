@@ -378,20 +378,23 @@ void afterward(station station_1, station station_2){
 }
 
 void backward(station station_2, station station_1){                                                                                                        //non va
-   station temp_station = next_station(station_1), locked_station=station_1, bypass=NULL;
+  station temp_station = next_station(station_1), locked_station=station_1, last_visited=NULL;
     do {
         while (temp_station!=NULL) {
-            if (temp_station->last_visited==0 && temp_station->size!=0 && ((temp_station->distance - temp_station->car[0]) <= locked_station->distance)) {
+            if (locked_station->last_visited!=-1 && temp_station->last_visited==0 && temp_station->size!=0 && ((temp_station->distance - temp_station->car[0]) <= locked_station->distance)) {
                 temp_station->last_visited = locked_station->distance;
-                bypass = temp_station;
-            }
+                last_visited=temp_station;
+                temp_station = previous_station(temp_station);
+                while (temp_station->distance!=station_1->distance && temp_station->last_visited==0) {
+                         temp_station->last_visited = -1;
+                         temp_station = previous_station(temp_station);
+                    }
+                temp_station=last_visited;
+                }
             temp_station = next_station(temp_station);
-        }
-        if (bypass!=NULL)
+            }
+            locked_station = next_station(locked_station);
             temp_station = next_station(locked_station);
-        else temp_station = next_station(bypass);
-        locked_station = next_station(locked_station);
-
     } while (locked_station->distance != station_2->distance);
     if (station_2->last_visited != 0){
         temp_station=station_2;
@@ -411,7 +414,6 @@ void backward(station station_2, station station_1){                            
         }
         printf("\n");
     } else printf("nessun percorso\n");
-   printf("\n");
 }
 
 void reset_distance(station tree_to_reset){

@@ -8,18 +8,18 @@ Test 7      DONE DATA
 Test 8      DONE DATA
 Test 9      DONE DATA
 Test 10     DONE DATA
-Test 11
-Test 12
-Test 13
-Test 14
-Test 15
-Test 16
-Test 17
-Test 18
-Test 19
+Test 11     DONE COMPLETE
+Test 12     DONE COMPLETE
+Test 13     DONE COMPLETE
+Test 14     DONE COMPLETE
+Test 15     DONE COMPLETE
+Test 16     DONE COMPLETE
+Test 17     DONE COMPLETE
+Test 18     DONE COMPLETE
+Test 19     DONE COMPLETE
 Test 20
 Test 21
-Test 22    DONE DATA
+Test 22     DONE DATA
 Test 23
 Test 24
 Test 25
@@ -28,7 +28,7 @@ Test 27
 Test 28
 Test 29
 Test 30
-Test 31
+Test 31      DONE COMPLETE
 Test 32
 Test 33
 Test 34
@@ -41,9 +41,9 @@ Test 40
 Test 41
 Test 42
 Test 43
-Test 44     DONE DATA AFTERWARDS
+Test 44     DONE COMPLETE
 Test 45     DONE DATA AFTERWARDS
-Test 46     DONE DATA AFTERWARDS
+Test 46     DONE COMPLETE
 Test 47     DONE DATA AFTERWARDS
 Test 48     DONE DATA AFTERWARDS
 Test 49
@@ -63,9 +63,9 @@ Test 62
 Test 63
 Test 64
 Test 65     SE BLOCCA
-Test 66     DONE DATA AFTERWARDS
+Test 66     DONE DATA AFTERWARDS SI BLOCCA
 Test 67     DONE DATA AFTERWARDS
-Test 68     DONE DATA AFTERWARDS
+Test 68     DONE COMPLETE
 Test 69     SE BLOCCA
 Test 70     DONE DATA AFTERWARDS
 Test 71
