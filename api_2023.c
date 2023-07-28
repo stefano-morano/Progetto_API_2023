@@ -85,7 +85,7 @@ void insert_array(int distance){
         array_capacity=1;
     } else if (array_size==array_capacity){
         array_capacity*=2;
-        array_distance =(int*) realloc (array_distance, sizeof(int)*array_capacity);
+        array_distance = (int*) realloc (array_distance, sizeof(int)*array_capacity);
     }
     array_distance[array_size]=distance;
     array_size++;
@@ -117,19 +117,19 @@ void aggiungi_stazione() {
     int distance_input;
     if (scanf("%d", &distance_input) <= 0)                                              //read the distance of the new station
         return;
-    if (in_station_position(station_tree, distance_input)!=NULL) {
+    if (in_station_position(station_tree, distance_input)!=NULL) {          //doesn't insert if the station already exists
         printf("non aggiunta\n");
         return;
     } else {
         int num_input;
         station radix = station_tree, scorr;
         if (scanf("%d", &num_input) <= 0)                                              //read the distance of the new station
-            return;                                                //read the initial number of cars in the station
+            return;                                                                    //read the initial number of cars in the station
         station new_station = malloc(sizeof(Node));
         new_station->distance = distance_input;
         new_station->size = 0;
         new_station->capacity = num_input;
-        new_station->last_visited = 0;
+        new_station->last_visited = -1;
         new_station->dx = NULL;
         new_station->sx = NULL;
         new_station->father = NULL;
@@ -149,7 +149,7 @@ void aggiungi_stazione() {
             station_tree = radix;
         }
         if (new_station->capacity != 0) {
-            new_station->car = (int*) malloc(sizeof(int) * num_input);
+            new_station->car = (int*) malloc (sizeof(int) * num_input);
             int position;
             for (int x = 0; x < new_station->capacity; x++) {
                 if (scanf("%d", &num_input) <= 0)                                              //read the distance of the new station
@@ -190,17 +190,17 @@ void print_station(int distance){
 }
 
 int binary_search_left(station station_to_shift, int num_car) {
-    int left = 0;
-    int right = station_to_shift->size - 1;
+    int sx = 0;
+    int dx = station_to_shift->size - 1;
 
-    while (left <= right) {
-        int mid = left + (right - left) / 2;
+    while (sx <= dx) {
+        int mid = (sx+dx) / 2;
         if (station_to_shift->car[mid] == num_car)
             return mid;
         else {
             if (station_to_shift->car[mid] < num_car)
-                right = mid - 1;
-            else left = mid + 1;
+                dx = mid - 1;
+            else sx = mid + 1;
         }
     }
     return -1;
@@ -217,52 +217,32 @@ void copy_array(station source, station destination){
         destination->car[x]=source->car[x];
 }
 
-void delete_node(station node){                                         //da rivedere
-    if (node == NULL)
-        return;
-    Node* root = node->father;
-    if (node->sx == NULL) {
-        if (node->dx != NULL)
-            node->dx->father = node->father;
-
-        if (root != NULL) {
-            if (root->sx == node)
-                root->sx = node->dx;
-            else
-                root->dx = node->dx;
-        } else {
-            root = node->dx;
-        }
-        if (node->capacity>0)
-            free(node->car);
-        free(node);
-    } else if (node->dx == NULL) {
-        node->sx->father = node->father;
-        if (root != NULL) {
-            if (root->sx == node)
-                root->sx = node->sx;
-            else
-                root->dx = node->sx;
-        } else {
-            root = node->sx;
-        }
-        if (node->capacity>0)
-            free(node->car);
-        free(node);
-    } else {
-        Node* next = node->dx;
-        while (next->sx != NULL)
-            next = next->sx;
-        node->distance = next->distance;
+station delete_node(station node){                                         //delete a node from the tree and return the node to free
+    station x,y;
+    if (node->sx == NULL || node->dx == NULL)
+       y = node;
+    else y = next_station(node);
+    if (y->sx != NULL)
+        x = y->sx;
+    else x = y->dx;
+    if (x != NULL)
+        x->father = y->father;
+    if (y->father == NULL)
+        station_tree = x;
+    else if (y == y->father->sx)
+        y->father->sx = x;
+    else y->father->dx = x;
+    if (y != node) {
         if (node->capacity==0)
-            node->car=(int*) malloc (sizeof(int)*next->capacity);
-        else if (next->capacity>node->capacity)
-            node->car=(int*) realloc (node->car, sizeof(int)*next->capacity);
-        node->capacity=next->capacity;
-        node->size=next->size;
-        copy_array(next, node);
-        delete_node(next);
+            node->car=(int*) malloc (sizeof(int) * y->capacity);
+        else if (y->capacity>node->capacity)
+            node->car=(int*) realloc (node->car, sizeof(int) * y->capacity);
+        copy_array(y, node);
+        node->distance = y->distance;
+        node->size = y->size;
+        node->capacity = y->capacity;
     }
+    return y;
 }
 
 void demolisci_stazione() {
@@ -273,7 +253,7 @@ void demolisci_stazione() {
     if (to_consider==NULL){
         printf("non demolita\n");
     } else {
-        delete_node(to_consider);
+        free(delete_node(to_consider));
         printf("demolita\n");
     }
 }
@@ -349,18 +329,18 @@ void afterward(station station_1, station station_2){
    station temp_station = next_station(station_1), locked_station=station_1;
     do {
         while (temp_station!=NULL && locked_station->size!=0 && (locked_station->car[0] + locked_station->distance) >= temp_station->distance) {
-            if (temp_station->last_visited == 0)
+            if (temp_station->last_visited == -1)
                 temp_station->last_visited = locked_station->distance;
             temp_station = next_station(temp_station);
         }
         locked_station = next_station(locked_station);
         temp_station = next_station(locked_station);
     } while (locked_station->distance != station_2->distance);
-    if (station_2->last_visited != 0){
+    if (station_2->last_visited != -1){
         temp_station=station_2;
         insert_array(station_2->distance);
         do {
-            if (temp_station->last_visited != 0)
+            if (temp_station->last_visited != -1)
                 insert_array(temp_station->last_visited);
             else {
                 printf("nessun percorso\n");
@@ -374,11 +354,10 @@ void afterward(station station_1, station station_2){
         }
         printf("\n");
     } else printf("nessun percorso\n");
-   // printf("\n");
 }
 
 void backward(station station_2, station station_1){                                                                                                        //non va
-  station temp_station = next_station(station_1), locked_station=station_1, last_visited=NULL;
+ station temp_station = next_station(station_1), locked_station=station_1, last_visited=NULL;
     do {
         while (temp_station!=NULL) {
             if (locked_station->last_visited!=-1 && temp_station->last_visited==0 && temp_station->size!=0 && ((temp_station->distance - temp_station->car[0]) <= locked_station->distance)) {
@@ -419,7 +398,7 @@ void backward(station station_2, station station_1){                            
 void reset_distance(station tree_to_reset){
     if (tree_to_reset!=NULL) {
         reset_distance(tree_to_reset->sx);
-        tree_to_reset->last_visited = 0;
+        tree_to_reset->last_visited = -1;
         reset_distance(tree_to_reset->dx);
     }
 }
@@ -435,13 +414,14 @@ void pianifica_percorso(){
     reset_array();
     if (distance_1 < distance_2) {
         afterward(in_station_position(station_tree, distance_1), in_station_position(station_tree, distance_2));
+        //printf("\n");
         return;
     } else if (distance_1 > distance_2) {
-        backward(in_station_position(station_tree, distance_1), in_station_position(station_tree, distance_2));
+        //backward(in_station_position(station_tree, distance_1), in_station_position(station_tree, distance_2));
+        printf("\n");
         return;
     }
     printf("%d\n", distance_1);
-
 }
 
 int main() {
@@ -459,8 +439,13 @@ int main() {
         else if (strcmp(input, "stampa") == 0) {
             if (station_tree==NULL)
                 printf("\nNessuna stazione presente\n");
-            else print_stations(station_tree);
+            else{
+                station temporanea = in_station_position(station_tree, 0);
+                print_stations(station_tree);
+                printf("\n %d %d \n", next_station(temporanea)->distance, temporanea->distance+temporanea->car[0]);
+            }
         }
     }
+
     return 0;
 }
