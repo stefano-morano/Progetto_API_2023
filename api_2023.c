@@ -314,6 +314,7 @@ void rottama_auto(){
             } else {
                 if (to_consider->size==1) {
                     to_consider->size = 0;
+                    printf("rottamata\n");
                     return;
                 }
                 shift_left(to_consider, position);
@@ -356,30 +357,27 @@ void afterward(station station_1, station station_2){
     } else printf("nessun percorso\n");
 }
 
-void backward(station station_2, station station_1){                                                                                                        //non va
- station temp_station = next_station(station_1), locked_station=station_1, last_visited=NULL;
+void backward(station station_2, station station_1){
+ station temp_station = next_station(station_1), locked_station=station_1;
+ int last_distance=-1;
     do {
-        while (temp_station!=NULL) {
-            if (locked_station->last_visited!=-1 && temp_station->last_visited==0 && temp_station->size!=0 && ((temp_station->distance - temp_station->car[0]) <= locked_station->distance)) {
+       while (temp_station!=NULL) {         //il problema è questo if
+         if (temp_station->distance>=last_distance && temp_station->last_visited==-1 && temp_station->size!=0 && ((temp_station->distance - temp_station->car[0]) <= locked_station->distance)) {
                 temp_station->last_visited = locked_station->distance;
-                last_visited=temp_station;
-                temp_station = previous_station(temp_station);
-                while (temp_station->distance!=station_1->distance && temp_station->last_visited==0) {
-                         temp_station->last_visited = -1;
-                         temp_station = previous_station(temp_station);
-                    }
-                temp_station=last_visited;
-                }
+               last_distance=temp_station->distance;
+         }
             temp_station = next_station(temp_station);
-            }
+        }
+        do {
             locked_station = next_station(locked_station);
-            temp_station = next_station(locked_station);
+        } while (locked_station->distance<last_distance && locked_station->last_visited==-1);
+        temp_station = next_station(locked_station);
     } while (locked_station->distance != station_2->distance);
-    if (station_2->last_visited != 0){
+   if (station_2->last_visited != -1){
         temp_station=station_2;
         insert_array(temp_station->distance);
         do {
-            if (temp_station->last_visited != 0) {
+            if (temp_station->last_visited != -1) {
                 insert_array(temp_station->last_visited);
             } else {
                 printf("nessun percorso\n");
@@ -417,8 +415,8 @@ void pianifica_percorso(){
         //printf("\n");
         return;
     } else if (distance_1 > distance_2) {
-        //backward(in_station_position(station_tree, distance_1), in_station_position(station_tree, distance_2));
-        printf("\n");
+        backward(in_station_position(station_tree, distance_1), in_station_position(station_tree, distance_2));
+        //printf("\n");
         return;
     }
     printf("%d\n", distance_1);
@@ -436,15 +434,12 @@ int main() {
             rottama_auto();
         else if (strcmp(input, "pianifica-percorso") == 0)
             pianifica_percorso();
-        else if (strcmp(input, "stampa") == 0) {
+        /*else if (strcmp(input, "stampa") == 0) {
             if (station_tree==NULL)
                 printf("\nNessuna stazione presente\n");
-            else{
-                station temporanea = in_station_position(station_tree, 0);
+            else
                 print_stations(station_tree);
-                printf("\n %d %d \n", next_station(temporanea)->distance, temporanea->distance+temporanea->car[0]);
-            }
-        }
+        }*/
     }
 
     return 0;
