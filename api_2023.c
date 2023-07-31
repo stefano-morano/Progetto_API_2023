@@ -362,7 +362,7 @@ void backward(station station_2, station station_1){
  int last_distance=-1;
     do {
        while (temp_station!=NULL) {         //il problema è questo if
-         if (temp_station->distance>=last_distance && temp_station->last_visited==-1 && temp_station->size!=0 && ((temp_station->distance - temp_station->car[0]) <= locked_station->distance)) {
+         if (temp_station->size!=0 && temp_station->distance>=last_distance && temp_station->last_visited==-1 && ((temp_station->distance - temp_station->car[0]) <= locked_station->distance)) {
                 temp_station->last_visited = locked_station->distance;
                last_distance=temp_station->distance;
          }
@@ -434,12 +434,12 @@ int main() {
             rottama_auto();
         else if (strcmp(input, "pianifica-percorso") == 0)
             pianifica_percorso();
-        /*else if (strcmp(input, "stampa") == 0) {
+        else if (strcmp(input, "stampa") == 0) {
             if (station_tree==NULL)
                 printf("\nNessuna stazione presente\n");
             else
                 print_stations(station_tree);
-        }*/
+        }
     }
 
     return 0;
