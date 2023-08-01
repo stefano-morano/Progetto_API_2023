@@ -370,9 +370,10 @@ void backward(station station_2, station station_1){
         }
         do {
             locked_station = next_station(locked_station);
-        } while (locked_station->distance<last_distance && locked_station->last_visited==-1);
-        temp_station = next_station(locked_station);
-    } while (locked_station->distance != station_2->distance);
+        } while (locked_station!=NULL && locked_station->distance<last_distance && locked_station->last_visited==-1);
+        if (locked_station != NULL)
+            temp_station = next_station(locked_station);
+    } while (locked_station!=NULL && locked_station->distance != station_2->distance);
    if (station_2->last_visited != -1){
         temp_station=station_2;
         insert_array(temp_station->distance);
@@ -384,7 +385,7 @@ void backward(station station_2, station station_1){
                 return;
             }
             temp_station = in_station_position(station_tree, temp_station->last_visited);
-        } while (temp_station->distance != station_1 -> distance);
+        } while (temp_station!=NULL && temp_station->distance != station_1 -> distance);
         printf("%d", array_distance[0]);
         for (int x=1; x<array_size; x++){
             printf(" %d", array_distance[x]);
