@@ -335,7 +335,8 @@ void afterward(station station_1, station station_2){
             temp_station = next_station(temp_station);
         }
         locked_station = next_station(locked_station);
-        temp_station = next_station(locked_station);
+        if (locked_station == temp_station)
+            temp_station = next_station(locked_station);
     } while (locked_station->distance != station_2->distance);
     if (station_2->last_visited != -1){
         temp_station=station_2;
@@ -435,12 +436,6 @@ int main() {
             rottama_auto();
         else if (strcmp(input, "pianifica-percorso") == 0)
             pianifica_percorso();
-        else if (strcmp(input, "stampa") == 0) {
-            if (station_tree==NULL)
-                printf("\nNessuna stazione presente\n");
-            else
-                print_stations(station_tree);
-        }
     }
 
     return 0;
